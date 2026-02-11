@@ -1,18 +1,17 @@
-# Environment variables
-.env
-
-# Node modules
+# Node
 node_modules/
+package-lock.json
 
-# Python cache
+# Python
 __pycache__/
 *.pyc
 
-# Serverless build
+# Serverless
 .serverless/
 
-# VS Code
-.vscode/
+# Environment
+.env
 
-# Logs
-*.log
+# OS
+.DS_Store
+Thumbs.db
