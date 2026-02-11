@@ -1,0 +1,32 @@
+service: ats-microservice
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.10
+  region: ap-south-1
+  environment:
+    ZOHO_CLIENT_ID: ${env:ZOHO_CLIENT_ID}
+    ZOHO_CLIENT_SECRET: ${env:ZOHO_CLIENT_SECRET}
+    ZOHO_ACCESS_TOKEN: ${env:ZOHO_ACCESS_TOKEN}
+    ZOHO_BASE_URL: ${env:ZOHO_BASE_URL}
+
+functions:
+  getJobs:
+    handler: handler.get_jobs
+    events:
+      - http:
+          path: jobs
+          method: get
+
+  createCandidate:
+    handler: handler.create_candidate
+    events:
+      - http:
+          path: candidates
+          method: post
+
+plugins:
+    - serverless-dotenv-plugin
+    - serverless-offline

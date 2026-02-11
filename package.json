@@ -1,0 +1,8 @@
+{
+  "name": "ats-serverless-service",
+  "version": "1.0.0",
+  "devDependencies": {
+    "serverless-dotenv-plugin": "^6.0.0",
+    "serverless-offline": "^13.0.0"
+  }
+}

@@ -1,0 +1,18 @@
+# Environment variables
+.env
+
+# Node modules
+node_modules/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Serverless build
+.serverless/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
