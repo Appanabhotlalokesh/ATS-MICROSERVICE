@@ -1,55 +1,61 @@
-import os
 import json
-import requests
+from http import HTTPStatus
 
-ZOHO_BASE_URL = os.getenv("ZOHO_BASE_URL")
-ZOHO_ACCESS_TOKEN = os.getenv("ZOHO_ACCESS_TOKEN")
+import zoho
 
-HEADERS = {
-    "Authorization": f"Zoho-oauthtoken {ZOHO_ACCESS_TOKEN}"
-}
+
+def _build_response(body, status_code=HTTPStatus.OK):
+    return {
+        "statusCode": int(status_code),
+        "body": json.dumps(body)
+    }
+
 
 def get_jobs(event, context):
-    url = f"{ZOHO_BASE_URL}/recruit/v2/JobOpenings"
-    res = requests.get(url, headers=HEADERS)
-
-    if res.status_code != 200:
-        return {
-            "statusCode": res.status_code,
-            "body": json.dumps({"error": res.text})
-        }
-
-    jobs = []
-    for j in res.json().get("data", []):
-        jobs.append({
-            "id": j.get("id"),
-            "title": j.get("Job_Opening_Name"),
-            "location": j.get("City"),
-            "status": j.get("Status"),
-            "external_url": j.get("Career_Page_URL")
-        })
-
-    return {
-        "statusCode": 200,
-        "body": json.dumps(jobs)
-    }
+    try:
+        data = zoho.get_jobs().get("data", [])
+        jobs = [
+            {
+                "id": item.get("id"),
+                "title": item.get("Job_Opening_Name"),
+                "location": item.get("City"),
+                "status": item.get("Status"),
+                "external_url": item.get("Career_Page_URL")
+            }
+            for item in data
+        ]
+        return _build_response(jobs)
+    except Exception as error:
+        return _build_response({"error": str(error)}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
 def create_candidate(event, context):
-    body = json.loads(event["body"])
+    try:
+        payload = json.loads(event.get("body", "{}"))
+    except json.JSONDecodeError:
+        return _build_response(
+            {"error": "Request body must be valid JSON."},
+            HTTPStatus.BAD_REQUEST
+        )
 
-    payload = {
-        "data": [{
-            "First_Name": body["name"],
-            "Email": body["email"],
-            "Mobile": body["phone"]
-        }]
+    missing = [field for field in ("name", "email", "phone") if not payload.get(field)]
+    if missing:
+        return _build_response(
+            {"error": "Missing required fields.", "missing": missing},
+            HTTPStatus.BAD_REQUEST
+        )
+
+    candidate_data = {
+        "First_Name": payload["name"],
+        "Email": payload["email"],
+        "Mobile": payload["phone"]
     }
 
-    url = f"{ZOHO_BASE_URL}/recruit/v2/Candidates"
-    res = requests.post(url, headers=HEADERS, json=payload)
-
-    return {
-        "statusCode": res.status_code,
-        "body": res.text
-    }
+    try:
+        result = zoho.create_candidate(candidate_data)
+        return _build_response(
+            {"message": "Candidate created.", "result": result},
+            HTTPStatus.CREATED
+        )
+    except Exception as error:
+        return _build_response({"error": str(error)}, HTTPStatus.INTERNAL_SERVER_ERROR)

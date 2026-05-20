@@ -1,8 +1,15 @@
 {
   "name": "ats-serverless-service",
   "version": "1.0.0",
+  "scripts": {
+    "start": "npx serverless offline start",
+    "deploy": "npx serverless deploy",
+    "lint": "echo \"No lints configured. Add Python linting if needed.\"",
+    "test": "pytest"
+  },
   "devDependencies": {
+    "serverless": "^3.35.0",
     "serverless-dotenv-plugin": "^6.0.0",
-    "serverless-offline": "^13.0.0"
+    "serverless-offline": "^13.9.0"
   }
 }

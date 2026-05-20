@@ -1,4 +1,5 @@
 service: ats-microservice
+useDotenv: true
 
 frameworkVersion: '3'
 
@@ -12,6 +13,12 @@ provider:
     ZOHO_ACCESS_TOKEN: ${env:ZOHO_ACCESS_TOKEN}
     ZOHO_BASE_URL: ${env:ZOHO_BASE_URL}
 
+package:
+  exclude:
+    - tests/**
+    - .gitignore
+    - .env*
+
 functions:
   getJobs:
     handler: handler.get_jobs
@@ -19,6 +26,7 @@ functions:
       - http:
           path: jobs
           method: get
+          cors: true
 
   createCandidate:
     handler: handler.create_candidate
@@ -26,7 +34,8 @@ functions:
       - http:
           path: candidates
           method: post
+          cors: true
 
 plugins:
-    - serverless-dotenv-plugin
-    - serverless-offline
+  - serverless-dotenv-plugin
+  - serverless-offline
